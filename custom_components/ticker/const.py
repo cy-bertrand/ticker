@@ -257,10 +257,3 @@ DEVICE_MANUFACTURER = "Analytix Energy Solutions"
 DEVICE_MODEL = "Ticker Notification Router"
 DEVICE_NAME = "Ticker"
 DEVICE_IDENTIFIER = "ticker"
-
-# EMAIL: Per-subscription email target override
-ATTR_EMAIL_TARGETS = "email_targets"
-MAX_EMAIL_TARGETS = 10           # max adresses par souscription
-MAX_EMAIL_ADDRESS_LENGTH = 254   # RFC 5321
-# Patterns to identify email service (subchain)
-EMAIL_SERVICE_PATTERNS = ("email", "EMAIL", "smtp", "SMTP", "gmail", "mailgun", "sendgrid")
