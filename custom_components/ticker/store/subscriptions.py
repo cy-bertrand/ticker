@@ -167,7 +167,6 @@ class SubscriptionMixin:
         conditions: dict[str, Any] | None = None,
         set_by: str | None = None,
         device_override: dict[str, Any] | None = None,
-        email_targets: list[str] | None = None,
     ) -> dict[str, Any]:
         """Set subscription for a person and category.
 
@@ -225,12 +224,6 @@ class SubscriptionMixin:
             # Clear device override for 'never' mode
             subscription.pop("device_override", None)
 
-        cleaned = [t.strip() for t in (email_targets or []) if t.strip()]
-        if cleaned:
-            subscription[ATTR_EMAIL_TARGETS] = cleaned
-        else:
-            subscription.pop(ATTR_EMAIL_TARGETS, None)   # clean if empty
-        
         self._subscriptions[key] = subscription
         await self.async_save_subscriptions()
         _LOGGER.debug(
