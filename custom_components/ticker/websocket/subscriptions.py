@@ -86,35 +86,11 @@ async def ws_get_subscriptions(
         vol.Optional("device_override"): dict,
     }
 )
-
-
 @websocket_api.async_response
-import re as _re
-_EMAIL_RE = _re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-
-def _validate_email_targets(email_targets, msg_id):    #email validation helper
-    if not isinstance(email_targets, list):
-        return (msg_id, "invalid_email_targets", "'email_targets' doit être une liste")
-    if len(email_targets) > MAX_EMAIL_TARGETS:
-        return (msg_id, "too_many_email_targets", f"Maximum {MAX_EMAIL_TARGETS} adresses")
-    for idx, addr in enumerate(email_targets):
-        if not isinstance(addr, str):
-            return (msg_id, "invalid_email_targets", f"Adresse {idx} doit être une chaîne")
-        addr = addr.strip()
-        if not addr:
-            continue
-        if len(addr) > MAX_EMAIL_ADDRESS_LENGTH:
-            return (msg_id, "invalid_email_targets", f"Adresse {idx} trop longue")
-        if not _EMAIL_RE.match(addr):
-            return (msg_id, "invalid_email_address", f"'{addr}' n'est pas valide")
-    return None
-
-
 async def ws_set_subscription(
     hass: HomeAssistant,
     connection: websocket_api.ActiveConnection,
     msg: dict[str, Any],
-    vol.Optional("email_targets"): list,
 ) -> None:
     """Set subscription mode for a person and category."""
     store = get_store(hass)
@@ -190,14 +166,6 @@ async def ws_set_subscription(
                 connection.send_error(msg["id"], code, msg_text)
                 return
 
-    # Validate email targets if provided
-    email_targets = msg.get("email_targets")
-    if email_targets is not None:
-        err = _validate_email_targets(email_targets, msg["id"])
-        if err:
-            connection.send_error(*err)
-            return
-        
     # Determine set_by: record ADMIN only when the caller actually has
     # admin rights. A non-admin HA user editing another user's subscription
     # must not be tagged as ADMIN — that is an audit-log correctness bug
@@ -227,7 +195,6 @@ async def ws_set_subscription(
         conditions=conditions,
         set_by=set_by,
         device_override=device_override,
-        email_targets=email_targets,
     )
 
     connection.send_result(msg["id"], {"subscription": subscription})
