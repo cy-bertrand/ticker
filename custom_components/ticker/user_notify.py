@@ -317,9 +317,6 @@ async def async_send_notification(
         final_devices,
     )
 
-    # EMAIL: email adreses per user and per cat
-    user_email_targets: list[str] = store.get_email_targets(person_id, category_id)
-
     for service_id in final_devices:
         service_info = service_lookup.get(service_id, {})
         service_name_display = service_info.get("name", service_id)
@@ -380,17 +377,6 @@ async def async_send_notification(
         if data and data.get("critical"):
             inject_critical_payload(service_data, delivery_format)
 
-        # EMAIL: target injection on email service
-        if user_email_targets:
-            sid_lower = service_id.lower()
-            if any(p in sid_lower for p in EMAIL_SERVICE_PATTERNS):
-                # get 'target' from root payload (not in data{})
-                service_data.setdefault("target", user_email_targets)
-                _LOGGER.debug(
-                    "EMAIL: injecting email target(s) %s for %s/%s via %s",
-                    user_email_targets, person_id, category_id, service_id,
-                )
-        
         try:
             await asyncio.wait_for(
                 hass.services.async_call(
