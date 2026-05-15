@@ -315,5 +315,12 @@ class SubscriptionMixin:
         suffix = f":{category_id}"
         return [
             sub for key, sub in self._subscriptions.items()
+
+    def get_email_targets(self, person_id: str, category_id: str) -> list[str]:
+    """email subscribed, or [] if empty."""
+    sub = self.get_subscription(person_id, category_id)
+    if sub:
+        return sub.get(ATTR_EMAIL_TARGETS, [])
+    return []
             if key.endswith(suffix) and not key.startswith("recipient:")
         ]
